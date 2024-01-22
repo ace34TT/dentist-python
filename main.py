@@ -1,13 +1,17 @@
 import json
 from functions import *
 from database import *
-symptoms = [
-  { "idParametre": 7, "niveau": 8 },
-  {
-    "idParametre": 2,
-    "niveau": 3,
-  },
-]
+from flask import Flask, jsonify , request
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+
+# @app.route('/api/medicaments-par-consultation', methods=['GET'])
+# def get_data():
+# idConsultaion = request.args.get('idConsultation', 0)
+tuples_list = get_parametrePatients_par_consultation(1)
+symptoms = [{"idParametre": item[0], "niveau": item[1]} for item in tuples_list]
 medicines = get_medicines()
 # print(json.dumps(medicines))
 _medicines = generate_medicines(medicines)
@@ -25,8 +29,10 @@ all_results = []  # Initialize an empty list to store dataframes
 
 for treatment in filtered_treatments:
     data = generate_output(symptoms, treatment)
+    print(json.dumps(data))
     final_results = find_required_number(data)
-    all_results.append(final_results)  # Append the dataframe to the list
+    print(final_results)
+    all_results.append(final_results)  
 
 # print(all_results[0])
 
@@ -38,15 +44,22 @@ for df in all_results:
     total_cost = df['cost'].sum()
     costs.append(total_cost)
 
-# Calculate costs for each dataframe
-for df in all_results:
-    df['cost'] = df['number'] * df['price']
-    total_cost = df['cost'].sum()
-    costs.append(total_cost)
+  # Calculate costs for each dataframe
+  # for df in all_results:
+  #     df['cost'] = df['number'] * df['price']
+  #     total_cost = df['cost'].sum()
+  #     costs.append(total_cost)
 
-# Sort dataframes by the total cost
-sorted_dataframes = [x for _, x in sorted(zip(costs, all_results), key=lambda pair: pair[0])]
-print(sorted_dataframes)
+  # Sort dataframes by the total cost
+  # sorted_dataframes = [x for _, x in sorted(zip(costs, all_results), key=lambda pair: pair[0])]
+  # print(sorted_dataframes)
+  
+  # data_list = [df.to_dict(orient='records') for df in sorted_dataframes]
+  # return jsonify(data_list)
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
+
 
 
 

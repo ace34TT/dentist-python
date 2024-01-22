@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dynamic Table Display</title>
+    <style>
+      #myTable,
+      th,
+      td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 10px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="table-container"></div>
+
+    <script>
+      // Function to create and return a table element from JSON data
+      function createTablesFromJSON(jsonData) {
+        var tables = [];
+        jsonData.forEach(function (subArray) {
+          var table = document.createElement("table");
+          var thead = document.createElement("thead");
+          var tbody = document.createElement("tbody");
+
+          // Create the header row
+          var headerRow = document.createElement("tr");
+          Object.keys(subArray[0]).forEach(function (key) {
+            var th = document.createElement("th");
+            th.textContent = key;
+            headerRow.appendChild(th);
+          });
+          thead.appendChild(headerRow);
+
+          // Create the body rows
+          subArray.forEach(function (row) {
+            var tr = document.createElement("tr");
+            Object.keys(row).forEach(function (key) {
+              var td = document.createElement("td");
+              td.textContent = row[key];
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+          });
+
+          table.appendChild(thead);
+          table.appendChild(tbody);
+          tables.push(table);
+        });
+        return tables;
+      }
+      // Function to fetch data and display the table
+      function fetchDataAndDisplayTables() {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              // Parse the JSON response
+              var data = JSON.parse(xhr.responseText);
+
+              // Create tables from the JSON data
+              var tables = createTablesFromJSON(data);
+
+              // Append each table to the container
+              tables.forEach(function (table) {
+                document.getElementById("table-container").appendChild(table);
+              });
+            } else {
+              console.error("There was a problem with the request.");
+            }
+          }
+        };
+        xhr.open(
+          "GET",
+          "http://localhost:5000/api/medicaments-par-consultation?idConsultation=1",
+          true
+        );
+        xhr.send();
+      }
+
+      // Call the function on page load
+      fetchDataAndDisplayTables();
+    </script>
+  </body>
+</html>
